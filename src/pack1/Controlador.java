@@ -47,7 +47,7 @@ public class Controlador
      * @return retorna true si la matricula es valida, y false si no lo es (ya
      * existe dentro del arreglo)
      */
-    private static boolean validaMatricula(Datos array[], String cve, JFrame jf)
+    private static int validaMatricula(Datos array[], String cve)
     {
         if (array != null)
         {
@@ -55,32 +55,74 @@ public class Controlador
             {
                 if (cve.equals(array[i].getCve()))
                 {
-                    Mensajes.error(jf, "Esa matricula ya existe");
-                    //Ese mensaje puede ser cambiado por una etiqueta que 
-                    //aparezca debajo de la caja de texto
-                    return false;
+
+                    return i;
                 }
             }
         }
-        Mensajes.exito(jf, "Matricula valida");
-        //se puede cambiar por una etiqueta debajo del text field o una 
-        //palomita enfrente que indique que es valido
-        return true;
+        return -1;
     }
 
-    public static Datos[] altaAlumno(Datos array[],JFrame jf,String cve,String nom, String pApellido,String sApellido,char sexo,boolean desnut,boolean sobrepeso, boolean alergias,boolean obecidad, boolean diabetes, String otras,int viveCon,int carrera)
+    public static Datos[] altaAlumno(Datos array[], JFrame jf, String cve, String nom, String pApellido, String sApellido, char sexo, boolean desnut, boolean sobrepeso, boolean alergias, boolean obecidad, boolean diabetes, String otras, int viveCon, int carrera)
     {
-        if (validaMatricula(array, cve, jf))
+        if (validaMatricula(array, cve) == -1)
         {
             Datos nvoA = new Alumnos(viveCon, carrera, cve, nom, pApellido, sApellido, sexo, desnut, sobrepeso, alergias, obecidad, diabetes, otras);
-            array=inserta(array, nvoA);
-        } 
+            array = inserta(array, nvoA);
+        } else
+        {
+            Mensajes.error(jf, "Esa Matricula ya existe");
+        }
         return array;
-        
-               
-       
-       
-        
     }
 
+    public static Datos[] altaPersonal(Datos array[], JFrame jf, String cve, String nom, String pApellido, String sApellido, char sexo, boolean desnut, boolean sobrepeso, boolean alergias, boolean obecidad, boolean diabetes, String otras, char estatus)
+    {
+        if (validaMatricula(array, cve) == -1)
+        {
+            Datos nvoA = new Personal(estatus, cve, nom, pApellido, sApellido, sexo, desnut, sobrepeso, alergias, obecidad, diabetes, otras);
+            array = inserta(array, nvoA);
+        } else
+        {
+            Mensajes.error(jf, "Esa Matricula ya existe");
+        }
+        return array;
+    }
+
+    public static Datos[] despModifica(Datos[] array, String cve, boolean desnut, boolean sobrepeso, 
+            boolean alergias, boolean obecidad, boolean diabetes, String otras, char estatus, 
+            int viveCon, int carrera, JFrame jf)
+    {
+        int pos = validaMatricula(array, cve);
+        if (pos == -1)
+        {
+            Mensajes.error(jf, "Ninguna coincidencia");
+
+        } else
+        {
+            if (array[pos] instanceof Alumnos)
+            {
+                
+                ((Alumnos)array[pos]).viveCon=viveCon;
+                ((Alumnos)array[pos]).carrera=carrera;
+                array[pos].setOtras(otras);
+                array[pos].setAlergias(alergias);
+                array[pos].setDesnutricion(desnut);
+                array[pos].setDiabetes(diabetes);
+                array[pos].setObesidad(obecidad);
+                array[pos].setSobrepeso(sobrepeso);
+            } else
+            {
+                ((Personal)array[pos]).setEstatus(estatus);
+                array[pos].setOtras(otras);
+                array[pos].setAlergias(alergias);
+                array[pos].setDesnutricion(desnut);
+                array[pos].setDiabetes(diabetes);
+                array[pos].setObesidad(obecidad);
+                array[pos].setSobrepeso(sobrepeso);
+            }
+        }
+        return array;
+    }
+    
 }
