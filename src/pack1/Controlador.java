@@ -4,8 +4,8 @@
  */
 package pack1;
 
-import cjb.ci.Mensajes;
-import javax.swing.JFrame;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -22,7 +22,7 @@ public class Controlador
      * @return retorna la direccion de memoria del nuevo arreglo con el dato
      * insertado
      */
-    private static Datos[] inserta(Datos array[], Datos d)
+    public static Datos[] inserta(Datos array[], Datos d)
     {
         if (array == null)
         {
@@ -43,11 +43,10 @@ public class Controlador
      *
      * @param array el arreglo del cual se van a comparar las matriculas
      * @param cve la clave que va a ser validada
-     * @param jf el frame donde se mostraran los mensajes
      * @return retorna true si la matricula es valida, y false si no lo es (ya
      * existe dentro del arreglo)
      */
-    private static int validaMatricula(Datos array[], String cve)
+    public static int validaMatricula(Datos array[], String cve)
     {
         if (array != null)
         {
@@ -63,66 +62,91 @@ public class Controlador
         return -1;
     }
 
-    public static Datos[] altaAlumno(Datos array[], JFrame jf, String cve, String nom, String pApellido, String sApellido, char sexo, boolean desnut, boolean sobrepeso, boolean alergias, boolean obecidad, boolean diabetes, String otras, int viveCon, int carrera)
+    public static Datos[] modificaAlum(Datos[] array, int pos, boolean desnut, boolean sobrepeso,
+            boolean alergias, boolean obecidad, boolean diabetes, String otras,
+            int viveCon, int carrera)
     {
-        if (validaMatricula(array, cve) == -1)
-        {
-            Datos nvoA = new Alumnos(viveCon, carrera, cve, nom, pApellido, sApellido, sexo, desnut, sobrepeso, alergias, obecidad, diabetes, otras);
-            array = inserta(array, nvoA);
-        } else
-        {
-            Mensajes.error(jf, "Esa Matricula ya existe");
-        }
+
+        ((Alumnos) array[pos]).viveCon = viveCon;
+        ((Alumnos) array[pos]).carrera = carrera;
+        array[pos].setOtras(otras);
+        array[pos].setAlergias(alergias);
+        array[pos].setDesnutricion(desnut);
+        array[pos].setDiabetes(diabetes);
+        array[pos].setObesidad(obecidad);
+        array[pos].setSobrepeso(sobrepeso);
+
         return array;
     }
 
-    public static Datos[] altaPersonal(Datos array[], JFrame jf, String cve, String nom, String pApellido, String sApellido, char sexo, boolean desnut, boolean sobrepeso, boolean alergias, boolean obecidad, boolean diabetes, String otras, char estatus)
+    public static Datos[] modificaPersonal(Datos[] array, int pos, boolean desnut, boolean sobrepeso,
+            boolean alergias, boolean obecidad, boolean diabetes, String otras,
+            char estatus)
     {
-        if (validaMatricula(array, cve) == -1)
-        {
-            Datos nvoA = new Personal(estatus, cve, nom, pApellido, sApellido, sexo, desnut, sobrepeso, alergias, obecidad, diabetes, otras);
-            array = inserta(array, nvoA);
-        } else
-        {
-            Mensajes.error(jf, "Esa Matricula ya existe");
-        }
+        ((Personal) array[pos]).setEstatus(estatus);
+        array[pos].setOtras(otras);
+        array[pos].setAlergias(alergias);
+        array[pos].setDesnutricion(desnut);
+        array[pos].setDiabetes(diabetes);
+        array[pos].setObesidad(obecidad);
+        array[pos].setSobrepeso(sobrepeso);
+
         return array;
     }
 
-    public static Datos[] despModifica(Datos[] array, String cve, boolean desnut, boolean sobrepeso, 
-            boolean alergias, boolean obecidad, boolean diabetes, String otras, char estatus, 
-            int viveCon, int carrera, JFrame jf)
+    private static void muestra(JTable tabla, Object[][] obj)
     {
-        int pos = validaMatricula(array, cve);
-        if (pos == -1)
+        DefaultTableModel modelo;
+        modelo = (DefaultTableModel) tabla.getModel();
+        for (int i = 0; i < obj.length; i++)
         {
-            Mensajes.error(jf, "Ninguna coincidencia");
+            modelo.addRow(obj[i]);
+        }
 
+    }
+
+    /**
+     * Metodo que aumenta un renglon a la matriz de historial clinico
+     *
+     * @param hC la matriz a la que se le va a agregar el renglon
+     * @return la matriz con un renglon mas
+     */
+    public static HistorialClinico[][] nuevoHistorial(HistorialClinico[][] hC)
+    {
+        if (hC == null)
+        {
+            hC = new HistorialClinico[1][];
         } else
         {
-            if (array[pos] instanceof Alumnos)
-            {
-                
-                ((Alumnos)array[pos]).viveCon=viveCon;
-                ((Alumnos)array[pos]).carrera=carrera;
-                array[pos].setOtras(otras);
-                array[pos].setAlergias(alergias);
-                array[pos].setDesnutricion(desnut);
-                array[pos].setDiabetes(diabetes);
-                array[pos].setObesidad(obecidad);
-                array[pos].setSobrepeso(sobrepeso);
-            } else
-            {
-                ((Personal)array[pos]).setEstatus(estatus);
-                array[pos].setOtras(otras);
-                array[pos].setAlergias(alergias);
-                array[pos].setDesnutricion(desnut);
-                array[pos].setDiabetes(diabetes);
-                array[pos].setObesidad(obecidad);
-                array[pos].setSobrepeso(sobrepeso);
-            }
+            HistorialClinico nvo[][] = new HistorialClinico[hC.length + 1][];
+            System.arraycopy(hC, 0, nvo, 0, hC.length);
+            hC = nvo;
         }
-        return array;
+        return hC;
     }
-    
+
+    /**
+     * metodo que agrega una nueva columna a la matriz de historial 
+     * clinico en un renglon dado e inserta la consulta en la columna
+     * creada en ese renglon
+     * @param hC la matriz a la que se le va a agregar una columna
+     * @param dato el dato que se va a insertar
+     * @param pos la posicion donde se va a crear la nueva columna
+     * @return la matriz con la nueva columna y el dato incertado
+     */
+    public static HistorialClinico[][] nuevaConsulta(HistorialClinico[][] hC, HistorialClinico dato,int pos)
+    {
+        if (hC[pos] == null)
+        {
+            hC[pos] = new HistorialClinico[1];
+        } else
+        {
+            HistorialClinico nvo[] = new HistorialClinico[hC[pos].length + 1];
+            System.arraycopy(hC[pos], 0, nvo, 0, hC[pos].length);
+            hC[pos] = nvo;
+        }
+        hC[pos][hC[pos].length - 1] = dato;
+        return hC;
+    }
+
 }
